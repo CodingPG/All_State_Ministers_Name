@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Public Representatives</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #74ebd5, #9face6);
+      color: #333;
+    }
+    .container {
+      max-width: 700px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+    h1 {
+      color: #4a4a4a;
+      margin-bottom: 20px;
+      font-size: 28px;
+    }
+    label {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      display: block;
+    }
+    select {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0 20px;
+      border: 2px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+    select:focus {
+      border-color: #007bff;
+      outline: none;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+    .result {
+      margin-top: 20px;
+    }
+    .error {
+      color: red;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    .rep-card {
+      background: #f9f9f9;
+      margin-bottom: 15px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .rep-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    }
+    .rep-card h3 {
+      color: #333;
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+    .rep-card p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+    .loading {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #007bff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Find Public Representatives</h1>
+    <label for="locality">Select Locality:</label>
+    <select id="locality">
+      <option value="" disabled selected>Select your locality</option>
+      <option value="Andhra Pradesh">Andhra Pradesh</option>
+      <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+      <option value="Assam">Assam</option>
+      <option value="Bihar">Bihar</option>
+      <option value="Chhattisgarh">Chhattisgarh</option>
+      <option value="Goa">Goa</option>
+      <option value="Gujarat">Gujarat</option>
+      <option value="Haryana">Haryana</option>
+      <option value="Himachal Pradesh">Himachal Pradesh</option>
+      <option value="Jharkhand">Jharkhand</option>
+      <option value="Karnataka">Karnataka</option>
+      <option value="Kerala">Kerala</option>
+      <option value="Madhya Pradesh">Madhya Pradesh</option>
+      <option value="Maharashtra">Maharashtra</option>
+      <option value="Manipur">Manipur</option>
+      <option value="Meghalaya">Meghalaya</option>
+      <option value="Mizoram">Mizoram</option>
+      <option value="Nagaland">Nagaland</option>
+      <option value="Odisha">Odisha</option>
+      <option value="Punjab">Punjab</option>
+      <option value="Rajasthan">Rajasthan</option>
+      <option value="Sikkim">Sikkim</option>
+      <option value="Tamil Nadu">Tamil Nadu</option>
+      <option value="Telangana">Telangana</option>
+      <option value="Tripura">Tripura</option>
+      <option value="Uttar Pradesh">Uttar Pradesh</option>
+      <option value="Uttarakhand">Uttarakhand</option>
+      <option value="West Bengal">West Bengal</option>
+    </select>
+    <button onclick="fetchRepresentatives()">Get Representatives</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    async function fetchRepresentatives() {
+      const locality = document.getElementById('locality').value;
+      const resultDiv = document.getElementById('result');
+      
+      resultDiv.innerHTML = '<p class="loading">Loading...</p>';
+
+      if (!locality) {
+        resultDiv.innerHTML = '<p class="error">Please select a locality.</p>';
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:8080/representatives?locality=${locality}`);
+        const data = await response.json();
+
+        if (data.error) {
+          resultDiv.innerHTML = `<p class="error">${data.error}</p>`;
+        } else {
+          resultDiv.innerHTML = '';
+          const reps = data.locality;
+          reps.forEach(rep => {
+            const card = document.createElement('div');
+            card.className = 'rep-card';
+            card.innerHTML = `
+              <h3>${rep.name}</h3>
+              <p><strong>Designation:</strong> ${rep.designation}</p>
+              <p><strong>Phone:</strong> ${rep.phone}</p>
+              <p><strong>Email:</strong> ${rep.email}</p>
+            `;
+            resultDiv.appendChild(card);
+          });
+        }
+      } catch (error) {
+        resultDiv.innerHTML = `<p class="error">An error occurred: ${error.message}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
